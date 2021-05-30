@@ -1,4 +1,4 @@
-# nptu_cc
+# nptu_db
 
 ### Start service:
 
