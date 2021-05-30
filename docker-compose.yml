@@ -6,6 +6,7 @@ services:
     build: nginx/
     ports:
       - "80:80"
+    restart: on-failure
     networks:
       internal_routes:
 
