@@ -2,6 +2,10 @@ import pika
 import time
 import logging
 import warnings
+import datetime
+import loguru
+import pymongo
+import json
 
 # configure logger
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
@@ -15,12 +19,27 @@ channel.queue_declare(queue='task_queue', durable=True)
 
 
 def callback(ch, method, properties, body):
+    
+        # 
+    myclient = pymongo.MongoClient('mongodb://%s:%s/' % (
+        'rs1',    # database addr
+        '27041'         # database port
+    ))
+
+    mydb = myclient["UserList"]
+    mycol = mydb["User"]
 
     message = body.decode("utf-8") 
     logging.info('receive messages:' + message)
     time.sleep(body.count(b'.'))
-
+    print (body)
+    dbMessage = json.loads(body)
+    x = mycol.insert_one(dbMessage) 
+    print(x)
+    myclient.close()
+    print(" [x] Done")
     ch.basic_ack(delivery_tag=method.delivery_tag)
+
 
 
 channel.basic_qos(prefetch_count=1)
