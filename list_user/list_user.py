@@ -1,5 +1,5 @@
 
-
+import pymongo
 from flask import Flask, render_template, request, jsonify, make_response, json, send_from_directory, redirect, url_for
 import pika
 import logging
@@ -26,12 +26,21 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 def create_user():
 
     # reture requests
-    res = dict()
-    res['username_1'] = 'Alice'
-    res['username_2'] = 'Bob'
-    res['username_3'] = 'Cindy'
-    res = make_response(jsonify(res), 200)
-    return res
+    myclient = pymongo.MongoClient('mongodb://%s:%s/' % (
+        'rs1',    # database addr
+        '27041'         # database port
+    ))
+    mydb = myclient["UserList"]
+    mycol = mydb["User"]
+    
+    for x in mycol.find():
+      return "Done %r" % x
+
+#    res = dict()
+#    res['username_1'] = 'Alice'
+#    res['username_2'] = 'Bob'
+#    res['username_3'] = 'Cindy'
+#    res = make_response(jsonify(res), 200)
 
 
 @app.route('/')

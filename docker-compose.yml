@@ -10,6 +10,15 @@ services:
     networks:
       internal_routes:
 
+  login:
+    container_name: login
+    build: login/
+    restart: on-failure
+    networks:
+      internal_routes:
+        aliases:
+          - login
+
   rabbitmq_create_user:
     image: rabbitmq 
     ports:
