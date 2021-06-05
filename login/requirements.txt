@@ -1,3 +1,4 @@
 pika
 flask
 pymongo
+bottle

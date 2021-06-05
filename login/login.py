@@ -1,21 +1,16 @@
-from flask import Flask, request, jsonify, json
+from bottle import route, run, request, response, abort, redirect
+import sys
+import uuid
 import pymongo
 
-app = Flask(__name__)
+SIGNATURE = uuid.uuid4().hex
+COOKIE = 'my-auth-sid'
 
-@app.route('/', methods=['POST'])
-def index():
-  # retrive post body
-  jsonobj = request.get_json(silent=True)
-  username = json.dumps(jsonobj['username']).replace("\"", "")
-  password = json.dumps(jsonobj['password']).replace("\"", "")
+sessions = {}
 
-  Dmessage = dict()
-  Dmessage['username'] = username
-  Dmessage['password'] = password
 
-  Dmessage = json.dumps(Dmessage)
-
+def check_login(username, password):
+  
   myclient = pymongo.MongoClient('mongodb://%s:%s/' % (
         'rs1',    # database addr
         '27041'         # database port
@@ -23,14 +18,74 @@ def index():
   mydb = myclient["UserList"]
   mycol = mydb["User"]
 
+  if mycol.find({'username':username, 'password': password}).count() == 1:
+    return True
+  return False
 
-  x = mycol.find({'username':username, 'password': password})
-  if x.count() == 1:
-    return "Done"
+def is_active_session():
+  sid = request.get_cookie(COOKIE, secret=SIGNATURE)
+  if not sid:
+    return None
+  if sid in sessions:
+    return sid
   else:
-    return "False"
-  
+    return None
 
-  #return ' %r :Web App with Python Flask!' % x
 
-app.run(host='0.0.0.0', port=5002)
+@route('/login', method='GET')
+def user_login():
+  sid = is_active_session()
+  if sid:
+    return 'Login%s' % sessions[sid]
+
+  return '''
+    <form method="post">
+     Accout<input name="username" type="text" /><br/>
+     Password<input name="password" type="password" /><br/>
+     <input value="Login" type="submit" />
+    </form>'''
+
+
+@route('/login', method='POST')
+def do_login():
+  username = request.forms.get('username')
+  password = request.forms.get('password')
+  if 'url' in request.query:
+    url = request.query.url
+  else:
+    url = None
+
+  if check_login(username, password):
+    sid = uuid.uuid4().hex
+    sessions[sid] = username
+    response.set_cookie(COOKIE, sid, secret=SIGNATURE, path="/", httponly=True)
+    if url:
+      redirect(url)
+    else:
+      return "Welcome %s" % username
+  else:
+    return "Fail"
+
+def show_headers():
+  import pprint
+  hdrs = dict(request.headers)
+  pprint.pprint(hdrs)
+
+
+@route('/auth')
+def auth():
+
+  show_headers()
+
+  sid = is_active_session()
+
+  if sid:
+
+    return 'OK ' + str(sid)
+  else:
+
+    abort(401, "Unathenticated")
+
+
+
+run(host='0.0.0.0', port=5002)
