@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, json
+import pymongo
 
 app = Flask(__name__)
 
@@ -15,7 +16,21 @@ def index():
 
   Dmessage = json.dumps(Dmessage)
 
+  myclient = pymongo.MongoClient('mongodb://%s:%s/' % (
+        'rs1',    # database addr
+        '27041'         # database port
+    ))
+  mydb = myclient["UserList"]
+  mycol = mydb["User"]
 
-  return ' %r :Web App with Python Flask!' % Dmessage
+
+  x = mycol.find({'username':username, 'password': password})
+  if x.count() == 1:
+    return "Done"
+  else:
+    return "False"
+  
+
+  #return ' %r :Web App with Python Flask!' % x
 
 app.run(host='0.0.0.0', port=5002)
