@@ -19,6 +19,16 @@ swagger = Swagger(app)
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
+@app.route('/', methods=['GET'])
+def add_user():
+    return '''
+    <form method="post">
+     Account  <input name="username" type="text" /><br/>
+     Password <input name="password" type="password" /><br/>
+     <input value="Add" type="submit" />
+    </form>'''
+
+
 # create user restful API
 @app.route('/create_user', methods=['POST'])
 @app.route('/', methods=['POST'])
@@ -26,9 +36,12 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 def create_user():
 
     # retrive post body
-    jsonobj = request.get_json(silent=True)
-    username = json.dumps(jsonobj['username']).replace("\"", "")
-    password = json.dumps(jsonobj['password']).replace("\"", "")
+    #jsonobj = request.get_json(silent=True)
+    #username = json.dumps(jsonobj['username']).replace("\"", "")
+    #password = json.dumps(jsonobj['password']).replace("\"", "")
+
+    username = request.form["username"]
+    password = request.form["password"]
 
     logging.info('username:', username)
     logging.info('password:', password)
