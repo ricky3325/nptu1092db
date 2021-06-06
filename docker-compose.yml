@@ -92,7 +92,15 @@ services:
       internal_routes:
         aliases:
           - rs3
-
+  
+  myapp:
+    container_name: myapp
+    build: myservice/
+    restart: on-failure
+    networks:
+      internal_routes:
+        aliases:
+          - myapp
 
 networks:
   internal_routes:

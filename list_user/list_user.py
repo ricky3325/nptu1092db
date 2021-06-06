@@ -33,8 +33,11 @@ def create_user():
     mydb = myclient["UserList"]
     mycol = mydb["User"]
     
-    for x in mycol.find():
-      return "Done %r" % x
+    x = mycol.find()
+    if x:
+      return render_template('home.html',data = x)
+    else:
+      return 'not found'
 
 #    res = dict()
 #    res['username_1'] = 'Alice'
