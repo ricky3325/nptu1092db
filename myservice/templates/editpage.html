@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+</head>
+<body>
+<h1>Content Edit Page</h1>
+<p>{{title}}  {{content}}</p>
+<ul>
+    {% for user in data %}
+        <form method="post">
+        <input value="{{ user.title }}" name="title" type="text" readonly>
+        <input value="{{ user.content }}" name="content" type="text" />
+        <input value="Edit" type="submit" />
+        </form>
+    {% endfor %}
+</ul>
+</body>
+</html>
