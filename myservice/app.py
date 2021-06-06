@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, jsonify, make_response, json,
 import pymongo
 
 myclient = pymongo.MongoClient('mongodb://%s:%s/' % (
-        'rs3',    # database addr
-        '27043'         # database port
+        'rs1',    # database addr
+        '27041'         # database port
     ))
 mydb = myclient["Content"]
 mycol = mydb["Info"]
@@ -21,17 +21,36 @@ def readInfo():
 
 @app.route('/editInfo', methods=['GET'])
 def editInfo():
-    
     x = mycol.find()
     if x:
-      return render_template('home.html',data = x)
+      return render_template('editpage.html',data = x)
     else:
       return 'not found'
+
+@app.route('/editInfo', methods=['POST'])
+def Do_editInfo():
+    title = request.form["title"]
+    content = request.form["content"]
+    x = mycol.update({"title":title},{"$set":{"content":content}})
+    return render_template('home.html' ,title = title, content = content)
 
 
 @app.route('/deleteInfo', methods=['GET'])
 def deleteInfo():
-    return "deleteInfo"
+    x = mycol.find()
+    if x:
+      return render_template('deletepage.html',data = x)
+    else:
+      return 'not found'
+
+@app.route('/deleteInfo', methods=['POST'])
+def Do_deleteInfo():
+    title = request.form["title"]
+    content = request.form["content"]
+    #x = mycol.update({"title":title},{"$set":{"content":content}})
+    #x = mycol.insert_one({"title":title, "content":content})
+    x = mycol.delete_one({"title":title})
+    return render_template('home.html' ,title = title, content = content)
 
 @app.route('/addInfo', methods=['GET'])
 def addInfo():
@@ -47,7 +66,6 @@ def Do_addInfo():
     title = request.form["title"]
     content = request.form["content"]
 
-    
     x = mycol.insert_one({"title":title, "content":content})
     return render_template('home.html' ,title = title, content = content)
 
