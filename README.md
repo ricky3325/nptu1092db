@@ -18,11 +18,11 @@ $  docker exec -it rs1 bash
 					},
 					{
 						"_id" : 1,
-						"host" : "rs1:27042"
+						"host" : "rs2:27042"
 					},
 					{
 						"_id" : 2,
-						"host" : "rs1:27043"
+						"host" : "rs3:27043"
 					},
 		]
 		
